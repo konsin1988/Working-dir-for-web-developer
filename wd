@@ -1,0 +1,193 @@
+#!/usr/bin/bash
+#
+#####################    Variables   ################
+#
+# Token from github (!)
+TOKEN='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'
+
+ERR="Too few arguments! Try 'wd --help' for more information.";
+# Private or public repo
+PRIVATE="false";
+
+######################   NO Arguments   ##################
+if [ $# -lt 1 ]
+then
+	echo $ERR;
+	exit;
+fi
+
+##########################   HELP   ########################
+if [ $1 ==  "--help" ]
+then
+	echo "Usage: 
+	wd [OPTIONS]...[NAME OF DIR]...[TITLE OF WEBSITE]..[NAME OF GITHUB REPO]
+  The utility creates a working folder with all the necessary folders, files and working tools for web development.
+   Options:
+           -p              Creating a PRIVATE repository on github
+			   (default option: public);
+           -g              Initialization of gulp, creation of 
+                          gulpfile.js containing a simple default 
+                          task for minimizing main.css and main.js. 
+                          The public version is saved in the \"public\" 
+                          folder.
+  NAME OF DIR - name of creating directory.
+  TITLE OF WEBSITE - <title> of website.
+  NAME OF GITHUB REPO - name of the github repository that will be created.
+  
+  To continue using gulp in your project, use the \"gulp\" or \"gulp default\" command.
+  
+ To correctly create a remote repository on github, you will need your personal login token with the authority to create a repository (\$Token in the program)"
+	exit;
+fi
+
+#######################    OPTIONS    ###################
+while getopts "gp" options; do
+	case "${options}" in 
+	g) GULP="true";
+	;;
+	p) PRIVATE="true"; 
+	;; 
+esac
+done
+
+################   REMOVE OPTIONS WITH SHIFT  ##############
+while [[ $1 == -* ]]; do
+	shift;
+done
+
+##################  CHECK NUMBER OF ARGS    ###############
+if [ $# -lt 2 ] 
+then 
+	echo $ERR;
+	exit;
+elif [ $# -gt 3 ]
+then
+	echo "Too many arguments
+Try 'wd --help' for more information.";
+	exit;
+fi
+
+#############   CREATE DIR AND FILES   ####################
+
+mkdir $1 $1/img $1/css $1/js;
+cd $1;
+
+#################   README.md    #######################
+
+touch README.md;
+
+################# INDEX.HTML   #########################
+
+echo "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <meta name=\"discription\" content=\"content\">
+    <title>$2</title>
+    <link rel=\"shortcut icon\" type=\"image/x-icon\" href=\"./img/favicon.ico\" />
+    <link rel=\"stylesheet\" href=\"./css/main.scss\" />
+    <script src=\"./js/main.js\" defer></script>
+</head>
+<body>
+    
+</body>
+</html>" > index.html;
+
+#####################    MAIN.SCSS   #####################
+
+echo "* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}" > css/main.scss;
+
+####################    MAIN.JS   ######################
+
+touch js/main.js;
+
+#####################   GULP   ########################
+
+if [ $GULP == 'true' ]; then
+	mkdir public public/css public/js;
+	npm install gulp-cli;
+
+######################  PACKAGE.JSON  ################
+
+	echo '{                                                                                  
+  "name": "lesson_1_double",                                                       
+  "version": "1.0.0",                                                              
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-minify": "^3.1.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^5.1.0",
+    "sass": "^1.70.0"
+  }
+}' > package.json;
+
+####################   INSTALL GULP  #################
+
+	npm install gulp;
+
+######################  GULPFILE.JS ###################
+
+	echo 'const gulp = require("gulp"),
+  minifyCSS = require("gulp-clean-css"),
+  renameCSS = require("gulp-rename"),
+  sass = require("gulp-sass")(require("sass")),
+  minifyJS = require("gulp-minify");
+
+// minCSS
+gulp.task("mincss", async function () {
+  gulp
+    .src("./css/*.scss")
+    .pipe(sass())
+    .pipe(minifyCSS())
+    .pipe(renameCSS({ suffix: ".min" }))
+    .pipe(gulp.dest("./public/css"));
+});
+
+//minJS
+gulp.task("minjs", async function () {
+  gulp.src("./js/*.js").pipe(minifyJS()).pipe(gulp.dest("./public/js"));
+});
+
+// Watch
+gulp.task("default", gulp.series(
+        "mincss",
+        "minjs"
+));' > gulpfile.js;
+
+#####################   COMMAND TO CLEAR CSS AND JS   ##############
+
+	gulp;
+fi
+###############    GIT INIT, GITIGNORE   #####################
+
+git init;
+echo "./node_moduls/*" > .gitignore;
+git add *;
+git commit -m "Init project"
+
+###############     REMOTE REPO IN GITHUB   #################
+
+NAME="{\"name\":\"$3\", \"private\": $PRIVATE}";
+if [ $# -gt 2 ]; then
+curl -L   -X POST   -H "Accept: application/vnd.github+json"   -H "Authorization: Bearer $TOKEN"   -H "X-GitHub-Api-Version: 2022-11-28"   https://api.github.com/user/repos   -d "$NAME" 
+	git remote add origin https://github.com/konsin1988/$3.git;
+	git push origin master;
+fi
+
+#######################   LET'S GO   #########################
+
+code .
+
+#############################################################
