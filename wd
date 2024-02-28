@@ -3,7 +3,7 @@
 #####################    Variables   ################
 #
 # Token from github (!)
-TOKEN='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'
+TOKEN='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'
 
 ERR="Too few arguments! Try 'wd --help' for more information.";
 # Private or public repo
