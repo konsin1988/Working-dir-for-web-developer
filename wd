@@ -3,7 +3,7 @@
 #####################    Variables   ################
 #
 # Token from github (!)
-TOKEN='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'
+TOKEN='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'
 
 ERR="Too few arguments! Try 'wd --help' for more information.";
 # Private or public repo
@@ -69,7 +69,8 @@ fi
 
 #############   CREATE DIR AND FILES   ####################
 
-mkdir $1 $1/img $1/css $1/js;
+mkdir $1 $1/img $1/css $1/js $1/scss $1/scss/components $1/scss/common $1/scss/components/main;
+touch $1/scss/common/_fonts.scss $1/scss/common/_extends.scss $1/scss/common/_mixins.scss $1/scss/common/_animations.scss $1/scss/common/_common.scss $1/scss/components/main/_main.scss; 
 cd $1;
 
 #################   README.md    #######################
@@ -96,15 +97,185 @@ echo "<!DOCTYPE html>
 
 #####################    MAIN.SCSS   #####################
 
-echo "* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none;
+echo "@import \"./fonts\";
+@import \"./reset\";
+@import \"./variables\";
+@import \"./extends\";
+@import \"./mixins\";
+@import \"./media_breakpoints\";
+@import \"./animations\";
+@import \"./common\";" > scss/common/_index.scss;
+
+echo "@import \"./common/index\";
+@import \"./components/header/index\"" > scss/main.scss;
+
+####################    RESET.SCSS  #####################
+
+echo "html, body, body div, span, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, abbr, address, cite, code, del, dfn, em, img, ins, kbd, q, samp, small, strong, sub, sup, var, b, i, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, figure, footer, header, menu, nav, section, time, mark, audio, video, details, summary {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font-weight: normal;
+        vertical-align: baseline;
+        background: transparent;
 }
-@-ms-viewport{
-  width: device-width;
-}" > css/main.css;
+
+article, aside, figure, footer, header, nav, section, details, summary {display: block;}
+
+html {box-sizing: border-box;}
+
+*,
+*:before,
+*:after {box-sizing: inherit;}
+
+img, object, embed {max-width: 100%;}
+
+#map img {max-width: none;}
+
+ul {list-style: none;}
+
+blockquote, q {quotes: none;}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {content: ''; content: none;}
+
+a {margin: 0; padding: 0; font-size: 100%; vertical-align: baseline; background: transparent;}
+
+del {text-decoration: line-through;}
+
+abbr[title], dfn[title] {border-bottom: 1px dotted #000; cursor: help;}
+
+table {border-collapse: collapse; border-spacing: 0;}
+th {font-weight: bold; vertical-align: bottom;}
+td {font-weight: normal; vertical-align: top;}
+
+hr {display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin:1em 0; padding: 0;}
+
+input, select {vertical-align: middle;}
+
+pre {
+    white-space: pre; 
+    white-space: pre-wrap; 
+    white-space: pre-line; 
+    word-wrap: break-word; 
+}
+
+input[type=\"radio\"] {vertical-align: text-bottom;}
+input[type=\"checkbox\"] {vertical-align: bottom;}
+.ie7 input[type=\"checkbox\"] {vertical-align: baseline;}
+.ie6 input {vertical-align: text-bottom;}
+
+select, input, textarea {font: 99% sans-serif;}
+
+table {font-size: inherit; font: 100%;}
+
+small {font-size: 85%;}
+
+strong {font-weight: bold;}
+
+td, td img {vertical-align: top;}
+
+sup {top: -0.5em;}
+sub {bottom: -0.25em;}
+
+pre, code, kbd, samp {font-family: monospace, sans-serif;}
+
+.clickable,
+label,
+input[type=button],
+input[type=submit],
+input[type=file],
+button {cursor: pointer;}
+
+button, input, select, textarea {margin: 0;}
+
+button,
+input[type=button] {width: auto; overflow: visible;}
+
+.ie7 img {-ms-interpolation-mode: bicubic;}
+
+.clearfix:before, .clearfix:after { content: \"\\0020\"; display: block; height: 0; overflow: hidden; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; } " > scss/common/_reset.scss;
+
+####################### /COMMON/VARIABLES.SCSS ##################
+
+echo "
+\$breakpoints: (
+  xxl: 1920px,
+  xl: 1280px,
+  md: 1024px,
+  sm: 767px,
+  xs: 576px,
+);
+" > scss/common/_variables.scss;
+
+##################### /COMMON/MEDIA_BREAKPOINTS.SCSS ############
+
+echo "
+@mixin desktop() {
+	@media (max-width: map-get(\$breakpoints, \"xxl\")) {
+		@content;
+	}
+}
+@mixin laptop() {
+	@media (max-width: map-get(\$breakpoints, \"xl\")) {
+		@content;
+	}
+}
+@mixin tablet() {
+	@media (max-width: map-get(\$breakpoints, \"md\")) {
+		@content;
+	}
+}
+@mixin mobile() {
+	@media (max-width: map-get(\$breakpoints, \"sm\")) {
+		@content;
+	}
+}
+@mixin mobileSmall() {
+	@media (max-width: map-get(\$breakpoints, \"xs\")) {
+		@content;
+	}
+}" > scss/common/_media_breakpoints.scss;
+
+####################  SCSS/COMPONENTS/MAIN/MAIN-MEDIA.SCSS  ########
+
+echo "
+@include desktop {
+	main {
+		/* content */
+	}
+}
+@include laptop{
+	main{
+		/* content */
+	}
+}
+@include tablet{
+	main{
+		/* content */
+	}
+}
+@include mobile{
+	main{
+		/* content */
+	}
+}
+@include mobileSmall{
+	main{
+		/* content */
+	}
+}
+" > scss/components/main/_main_media.scss;
+
+######################	SCSS/COMPONENTS/MAIN/INDEX.SCSS ########
+
+echo "@import \"./main\";
+@import \"./main_media\";" > scss/components/main/_index.scss;
 
 ####################    MAIN.JS   ######################
 
